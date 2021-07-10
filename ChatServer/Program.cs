@@ -2,6 +2,7 @@
 using Network.Enums;
 using Network.Extensions;
 using System;
+using System.Collections.Generic;
 using Chat.Packets;
 
 namespace Chat.Server
@@ -19,7 +20,7 @@ namespace Chat.Server
         public class Server
         {
             private ServerConnectionContainer serverConnectionContainer;
-            
+            List<string> messageLog = new List<string>();
             public void Demo()
             {
                 //1. Start listen on a port
@@ -57,6 +58,19 @@ namespace Chat.Server
             {
                 Console.WriteLine($"RawMessage received. Data: {rawData.ToUTF8String()}");
                 con.SendRawData(Network.Converter.RawDataConverter.FromUTF8String("RawResponse", $"Pesan \"{rawData.ToUTF8String()}\" diterima"));
+                //messageLog.Add(rawData.ToUTF8String());
+                //Broadcast(rawData.ToUTF8String(), con);
+            }
+
+            public void Broadcast(string message, Connection sender)
+            {
+                foreach(var c in serverConnectionContainer.TCP_Connections)
+                {
+                    if (c != sender)
+                    {
+                        c.SendRawData(Network.Converter.RawDataConverter.FromUTF8String("RawResponse", $"Broadcast {message}"));
+                    }
+                }
             }
         }
     }

@@ -28,7 +28,6 @@ namespace Chat.Client
             rawMessage.ConnectAndSend("Zaky", "Pesan kedua!");
 
             MessageSender messageSender = new MessageSender();
-            messageSender.SetOwnerName("BukanZaky");
             messageSender.SetTarget("127.0.0.1", 1234);
             messageSender.WriteMessage();
 
@@ -137,6 +136,11 @@ namespace Chat.Client
                     if (line == "exit")
                     {
                         done = true;
+                    }
+                    else if (line == "change name")
+                    {
+                        Console.Write("Nama baru: ");
+                        owner = Console.ReadLine();
                     }
                     else
                     {
