@@ -11,15 +11,15 @@ namespace Chat.Server
         static void Main(string[] args)
         {
             Console.WriteLine("Server start");
-            new UnSecureServerExample().Demo();
-
+            new Server().Demo();
+            
             Console.ReadLine();
         }
 
-        public class UnSecureServerExample
+        public class Server
         {
             private ServerConnectionContainer serverConnectionContainer;
-
+            
             public void Demo()
             {
                 //1. Start listen on a port
@@ -45,24 +45,18 @@ namespace Chat.Server
                 Console.ReadLine();
             }
 
-            /// <summary>
-            /// We got a connection.
-            /// </summary>
-            /// <param name="connection">The connection we got. (TCP or UDP)</param>
             private void connectionEstablished(Connection connection, ConnectionType type)
             {
                 Console.WriteLine($"{serverConnectionContainer.Count} {connection.GetType()} connected on port {connection.IPRemoteEndPoint.Port}");
 
                 //3. Register packet listeners.
-                connection.RegisterStaticPacketHandler<MessageRequest>(MessageReceived);
-                connection.RegisterRawDataHandler("HelloWorld", (rawData, con) => Console.WriteLine($"RawDataPacket received. Data: {rawData.ToUTF8String()}"));
-                connection.RegisterRawDataHandler("BoolValue", (rawData, con) => Console.WriteLine($"RawDataPacket received. Data: {rawData.ToBoolean()}"));
-                connection.RegisterRawDataHandler("DoubleValue", (rawData, con) => Console.WriteLine($"RawDataPacket received. Data: {rawData.ToDouble()}"));
+                connection.RegisterRawDataHandler("RawMessage", RawMessageReceived);
             }
-            //Kalau dapat pate tipe MessageRequest, Balas ke client
-            private static void MessageReceived(MessageRequest packet, Connection connection)
+            //Kalau dapat paket, Balas ke client
+            private static void RawMessageReceived(Network.Packets.RawData rawData, Connection con)
             {
-                connection.Send(new MessageResponse($"Message Received by the Server: {packet.message}", packet));
+                Console.WriteLine($"RawMessage received. Data: {rawData.ToUTF8String()}");
+                con.SendRawData(Network.Converter.RawDataConverter.FromUTF8String("RawResponse", $"Pesan \"{rawData.ToUTF8String()}\" diterima"));
             }
         }
     }
